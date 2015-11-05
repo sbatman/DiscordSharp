@@ -134,6 +134,7 @@ namespace DiscordSharp
         public event DiscordPresenceUpdate PresenceUpdated;
         public event DiscordURLUpdate URLMessageAutoUpdate;
         public event DiscordVoiceStateUpdate VoiceStateUpdate;
+        public event DiscordLeftVoiceChannel LeftVoiceChannel;
         public event UnknownMessage UnknownMessageTypeReceived;
         public event DiscordMessageDeleted MessageDeleted;
         public event DiscordUserUpdate UserUpdate;
@@ -1190,6 +1191,7 @@ namespace DiscordSharp
                 le.user = ServersList.Find(x => x.members.Find(y => y.user.id == message["d"]["user_id"].ToString()) != null).members.Find(x => x.user.id == message["d"]["user_id"].ToString());
                 le.guild = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
                 le.RawJson = message;
+                LeftVoiceChannel?.Invoke(this, le);
                 return;
             }
             DiscordVoiceStateUpdateEventArgs e = new DiscordVoiceStateUpdateEventArgs();
@@ -1202,8 +1204,7 @@ namespace DiscordSharp
             e.mute = message["d"]["mute"].ToObject<bool>();
             e.suppress = message["d"]["suppress"].ToObject<bool>();
             e.RawJson = message;
-            if (VoiceStateUpdate != null)
-                VoiceStateUpdate(this, e);
+            VoiceStateUpdate?.Invoke(this, e);
         }
         private JObject ServerInfo(string channelOrServerId)
         {
